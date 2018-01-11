@@ -1,0 +1,5 @@
+export GOPATH=~/workspace/go-implement-your-cache-server/cacheClient
+
+go get github.com/go-redis/redis
+
+go build
