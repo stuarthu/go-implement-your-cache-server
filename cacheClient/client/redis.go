@@ -29,6 +29,6 @@ func (r *redisClient) Set(key, value string) {
 }
 
 func NewRedisClient(server string) *redisClient {
-	client := redis.NewClient(&redis.Options{Addr: server, ReadTimeout: -1, DialTimeout: -1})
+	client := redis.NewClient(&redis.Options{Addr: server, ReadTimeout: -1})
 	return &redisClient{client}
 }

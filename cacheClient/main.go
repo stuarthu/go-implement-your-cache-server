@@ -53,7 +53,7 @@ func updateStatistic(bucket map[string]statistic, d time.Duration) {
 	addStatistic(bucket, "total", statistic{1, d})
 }
 
-func operate(typ, server, operation string, count, valueSize, total int, c chan *result) {
+func operate(typ, server, operation string, id, count, valueSize, total int, random bool, c chan *result) {
 	client := client.NewCacheClient(typ, server)
 	valuePrefix := strings.Repeat("a", valueSize)
 	getCount := 0
@@ -61,11 +61,16 @@ func operate(typ, server, operation string, count, valueSize, total int, c chan 
 	setCount := 0
 	bucket := make(map[string]statistic)
 	for i := 0; i < count; i++ {
-		tmp := rand.Intn(total)
+		var tmp int
+		if random {
+			tmp = rand.Intn(total)
+		} else {
+			tmp = id*count + i
+		}
 		key := fmt.Sprintf("%s%d", keyPrefix, tmp)
 		value := fmt.Sprintf("%s%d", valuePrefix, tmp)
 		var val string
-        var d time.Duration
+		var d time.Duration
 		if operation != "set" {
 			val, d = get(client, key)
 			if val != "" && val != value {
@@ -91,12 +96,14 @@ func operate(typ, server, operation string, count, valueSize, total int, c chan 
 func main() {
 	var typ, server, operation string
 	var total, valueSize, threads int
+	var random bool
 	flag.StringVar(&typ, "type", "http", "cache server type")
 	flag.StringVar(&server, "server", "localhost:12345", "cache server address")
 	flag.IntVar(&total, "total", 10000, "total API calls")
 	flag.IntVar(&valueSize, "size", 1000, "value size")
 	flag.IntVar(&threads, "threads", 50, "threads")
 	flag.StringVar(&operation, "operation", "set", "operation could be get/set/mixed")
+	flag.BoolVar(&random, "random", false, "iterate keys in order or random")
 	flag.Parse()
 	fmt.Println("type is", typ)
 	fmt.Println("server is", server)
@@ -104,11 +111,12 @@ func main() {
 	fmt.Println("value size is", valueSize)
 	fmt.Println("we have", threads, "threads")
 	fmt.Println("operation is", operation)
+	fmt.Println("random is", random)
 	if operation != "get" && operation != "set" && operation != "mixed" {
 		panic("invalid operation")
 	}
 
-    rand.Seed(time.Now().UnixNano())
+	rand.Seed(time.Now().UnixNano())
 	c := make(chan *result, threads)
 	getCount := 0
 	missCount := 0
@@ -116,7 +124,7 @@ func main() {
 	bucket := make(map[string]statistic)
 	start := time.Now()
 	for i := 0; i < threads; i++ {
-		go operate(typ, server, operation, total/threads, valueSize, total, c)
+		go operate(typ, server, operation, i, total/threads, valueSize, total, random, c)
 	}
 	for i := 0; i < threads; i++ {
 		r := <-c

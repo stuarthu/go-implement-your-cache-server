@@ -29,20 +29,24 @@ func readLen(r *bufio.Reader) int {
 	return l
 }
 
-func (r *tcpClient) Get(key string) string {
+func (r *tcpClient) Get(key string) chan string {
 	klen := len(key)
 	c := fmt.Sprintf("G%d %s", klen, key)
 	_, e := r.c.Write([]byte(c))
 	if e != nil {
 		panic(e)
 	}
-	vlen := readLen(r.r)
-	value := make([]byte, vlen)
-	_, e = io.ReadFull(r.r, value)
-	if e != nil {
-		panic(e)
-	}
-	return string(value)
+    ch := make(chan string)
+	go func() {
+        vlen := readLen(r.r)
+    	value := make([]byte, vlen)
+	    _, e = io.ReadFull(r.r, value)
+    	if e != nil {
+	    	panic(e)
+    	}
+        ch <- value
+    }()
+	return ch
 }
 
 func (r *tcpClient) Set(key, value string) {
