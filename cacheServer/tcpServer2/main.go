@@ -25,11 +25,11 @@ func main() {
 	}
 }
 
-func reply(c net.Conn, ch chan []byte, cl chan bool) {
+func reply(c net.Conn, ch chan chan []byte, cl chan bool) {
 	for {
 		select {
-		case b := <-ch:
-			c.Write(b)
+		case r := <-ch:
+			c.Write(<-r)
 		case <-cl:
 			return
 		}
@@ -39,7 +39,7 @@ func reply(c net.Conn, ch chan []byte, cl chan bool) {
 func process(c net.Conn) {
 	defer c.Close()
 	r := bufio.NewReader(c)
-	ch := make(chan []byte, 5000)
+	ch := make(chan chan []byte, 5000)
 	cl := make(chan bool)
 	defer func() {
 		cl <- true
@@ -97,11 +97,11 @@ func set(r *bufio.Reader) error {
 		log.Println(e)
 		return e
 	}
-	cache.Set(string(k), v)
+	go cache.Set(string(k), v)
 	return nil
 }
 
-func get(ch chan []byte, r *bufio.Reader) error {
+func get(ch chan chan []byte, r *bufio.Reader) error {
 	klen := readLen(r)
 	k := make([]byte, klen)
 	_, e := io.ReadFull(r, k)
@@ -109,10 +109,12 @@ func get(ch chan []byte, r *bufio.Reader) error {
 		log.Println(e)
 		return e
 	}
+    c := make(chan []byte)
 	go func() {
 		v := cache.Get(string(k))
 		b := []byte(fmt.Sprintf("%d ", len(v)) + string(v))
-		ch <- b
+		c <- b
 	}()
+    ch <- c
 	return nil
 }
