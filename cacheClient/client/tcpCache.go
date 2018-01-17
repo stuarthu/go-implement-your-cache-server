@@ -36,16 +36,16 @@ func (r *tcpClient) Get(key string) chan string {
 	if e != nil {
 		panic(e)
 	}
-    ch := make(chan string)
+	ch := make(chan string)
 	go func() {
-        vlen := readLen(r.r)
-    	value := make([]byte, vlen)
-	    _, e = io.ReadFull(r.r, value)
-    	if e != nil {
-	    	panic(e)
-    	}
-        ch <- value
-    }()
+		vlen := readLen(r.r)
+		value := make([]byte, vlen)
+		_, e = io.ReadFull(r.r, value)
+		if e != nil {
+			panic(e)
+		}
+		ch <- value
+	}()
 	return ch
 }
 

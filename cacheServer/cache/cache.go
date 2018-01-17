@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"log"
 	"os"
 )
 
@@ -27,6 +28,7 @@ func init() {
 		panic("please specify cache type")
 	}
 	c = newCache(os.Args[1])
+	log.Println(os.Args[1], "ready to serve")
 }
 
 func Set(key string, value []byte) {

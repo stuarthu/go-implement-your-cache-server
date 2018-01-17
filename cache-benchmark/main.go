@@ -86,7 +86,7 @@ func pipeline(client cacheClient.Client, cmds []*cacheClient.Cmd, r *result) {
 			if c.Value == "" {
 				resultType = "miss"
 			} else if c.Value != expect[i] {
-                fmt.Println(expect[i])
+				fmt.Println(expect[i])
 				panic(c.Value)
 			}
 		}
@@ -107,15 +107,15 @@ func operate(id, count int, ch chan *result) {
 			tmp = id*count + i
 		}
 		key := fmt.Sprintf("%d", tmp)
-        value := fmt.Sprintf("%s%d", valuePrefix, tmp)
-        name := operation
-        if operation == "mixed" {
-            if rand.Intn(2) == 1 {
-                name = "set"
-            } else {
-                name = "get"
-            }
-        }
+		value := fmt.Sprintf("%s%d", valuePrefix, tmp)
+		name := operation
+		if operation == "mixed" {
+			if rand.Intn(2) == 1 {
+				name = "set"
+			} else {
+				name = "get"
+			}
+		}
 		c := &cacheClient.Cmd{name, key, value}
 		if pipelen > 1 {
 			cmds = append(cmds, c)

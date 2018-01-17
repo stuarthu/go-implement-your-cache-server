@@ -1,5 +1,0 @@
-export GOPATH=~/workspace/go-implement-your-cache-server/cache-benckmark
-
-go get github.com/go-redis/redis
-
-go build

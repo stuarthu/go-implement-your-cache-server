@@ -62,9 +62,9 @@ func (r *redisClient) PipelinedRun(cmds []*Cmd) {
 	for i, c := range cmds {
 		if c.Name == "get" {
 			value, e := cmders[i].(*redis.StringCmd).Result()
-            if e == redis.Nil {
-                value = ""
-            } else if e != nil {
+			if e == redis.Nil {
+				value = ""
+			} else if e != nil {
 				log.Println(c.Key)
 				panic(e)
 			}

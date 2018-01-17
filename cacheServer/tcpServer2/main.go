@@ -109,12 +109,12 @@ func get(ch chan chan []byte, r *bufio.Reader) error {
 		log.Println(e)
 		return e
 	}
-    c := make(chan []byte)
+	c := make(chan []byte)
 	go func() {
 		v := cache.Get(string(k))
 		b := []byte(fmt.Sprintf("%d ", len(v)) + string(v))
 		c <- b
 	}()
-    ch <- c
+	ch <- c
 	return nil
 }

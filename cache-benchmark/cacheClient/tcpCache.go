@@ -41,7 +41,7 @@ func (r *tcpClient) sendGet(key string) {
 func (r *tcpClient) recvValue() string {
 	vlen := readLen(r.r)
 	value := make([]byte, vlen)
-    _, e := io.ReadFull(r.r, value)
+	_, e := io.ReadFull(r.r, value)
 	if e != nil {
 		panic(e)
 	}
@@ -59,35 +59,35 @@ func (r *tcpClient) sendSet(key, value string) {
 }
 
 func (r *tcpClient) Run(c *Cmd) {
-    if c.Name == "get" {
-        r.sendGet(c.Key)
-        c.Value = r.recvValue()
-        return
-    }
-    if c.Name == "set" {
-        r.sendSet(c.Key, c.Value)
-        return
-    }
-    panic("unknown cmd name " + c.Name)
+	if c.Name == "get" {
+		r.sendGet(c.Key)
+		c.Value = r.recvValue()
+		return
+	}
+	if c.Name == "set" {
+		r.sendSet(c.Key, c.Value)
+		return
+	}
+	panic("unknown cmd name " + c.Name)
 }
 
 func (r *tcpClient) PipelinedRun(cmds []*Cmd) {
-    if len(cmds) == 0 {
-        return
-    }
-    for _, c := range cmds {
-        if c.Name == "get" {
-            r.sendGet(c.Key)
-        }
-        if c.Name == "set" {
-            r.sendSet(c.Key, c.Value)
-        }
-    }
-    for _, c := range cmds {
-        if c.Name == "get" {
-            c.Value = r.recvValue()
-        }
-    }
+	if len(cmds) == 0 {
+		return
+	}
+	for _, c := range cmds {
+		if c.Name == "get" {
+			r.sendGet(c.Key)
+		}
+		if c.Name == "set" {
+			r.sendSet(c.Key, c.Value)
+		}
+	}
+	for _, c := range cmds {
+		if c.Name == "get" {
+			c.Value = r.recvValue()
+		}
+	}
 }
 
 func NewTCPClient(server string) *tcpClient {
