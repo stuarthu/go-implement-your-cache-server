@@ -1,3 +1,3 @@
-[submodule "cacheServer/cache/rocksdb"]
-	path = cacheServer/cache/rocksdb
+[submodule "rocksdb"]
+	path = rocksdb
 	url = https://github.com/facebook/rocksdb.git

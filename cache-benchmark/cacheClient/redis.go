@@ -74,6 +74,6 @@ func (r *redisClient) PipelinedRun(cmds []*Cmd) {
 }
 
 func NewRedisClient(server string) *redisClient {
-	client := redis.NewClient(&redis.Options{Addr: server, ReadTimeout: -1})
+	client := redis.NewClient(&redis.Options{Addr: server + ":6379", ReadTimeout: -1})
 	return &redisClient{client}
 }

@@ -1,5 +1,3 @@
-cacheServer/httpServer/httpServer
-cacheServer/tcpServer/tcpServer
 cache-benchmark/cache-benchmark
-cache-benchmark/pkg/
-cache-benchmark/src/
+pkg/
+src/

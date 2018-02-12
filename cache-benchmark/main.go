@@ -138,7 +138,7 @@ var total, valueSize, threads, pipelen, keyspacelen int
 
 func init() {
 	flag.StringVar(&typ, "type", "redis", "cache server type")
-	flag.StringVar(&server, "h", "10.29.102.179:6379", "cache server address")
+	flag.StringVar(&server, "h", "10.29.102.179", "cache server address")
 	flag.IntVar(&total, "n", 1000, "total number of requests")
 	flag.IntVar(&valueSize, "d", 1000, "data size of SET/GET value in bytes")
 	flag.IntVar(&pipelen, "P", 1, "pipeline length")
