@@ -2,8 +2,8 @@ package cache
 
 // #include <stdlib.h>
 // #include "rocksdb/c.h"
-// #cgo CFLAGS: -I${SRCDIR}/rocksdb/include
-// #cgo LDFLAGS: -L${SRCDIR}/rocksdb -lrocksdb -lz -lpthread -lsnappy -lstdc++ -lm -O3
+// #cgo CFLAGS: -I${SRCDIR}/../../../rocksdb/include
+// #cgo LDFLAGS: -L${SRCDIR}/../../../rocksdb -lrocksdb -lz -lpthread -lsnappy -lstdc++ -lm -O3
 import "C"
 import (
 	"time"
@@ -26,7 +26,7 @@ type rocksdbCache struct {
 	writeChan   chan *writeTask
 }
 
-func (r *rocksdbCache) read(key string) []byte {
+func (r *rocksdbCache) Get(key string) []byte {
 	var length C.size_t
 	var err *C.char
 	ckey := C.CString(key)
@@ -80,12 +80,13 @@ func write_func(db *C.rocksdb_t, c chan *writeTask) {
 	}
 }
 
-func (c *rocksdbCache) Set(key string, value []byte) {
-	c.writeChan <- &writeTask{key, value}
+func (r *rocksdbCache) Set(key string, value []byte) {
+	r.writeChan <- &writeTask{key, value}
 }
 
-func (c *rocksdbCache) Get(key string) []byte {
-	return r.read(key)
+func (r *rocksdbCache) Del(key string) {
+	//TODO implement
+	return not_imple
 }
 
 func NewRocksdbCache() *rocksdbCache {
