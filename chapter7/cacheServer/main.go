@@ -1,9 +1,7 @@
 package main
 
 import (
-	"./cache"
 	"bufio"
-	"fmt"
 	"io"
 	"log"
 	"net"
@@ -25,26 +23,26 @@ func main() {
 	}
 }
 
-func reply(c net.Conn, ch chan chan []byte, cl chan bool) {
+func reply(conn net.Conn, replyCh chan chan []byte, closeCh chan bool) {
 	for {
 		select {
-		case r := <-ch:
-			c.Write(<-r)
-		case <-cl:
+		case r := <-replyCh:
+			conn.Write(<-r)
+		case <-closeCh:
+			conn.Close()
 			return
 		}
 	}
 }
 
-func process(c net.Conn) {
-	defer c.Close()
-	r := bufio.NewReader(c)
-	ch := make(chan chan []byte, 5000)
-	cl := make(chan bool)
+func process(conn net.Conn) {
+	r := bufio.NewReader(conn)
+	replyCh := make(chan chan []byte, 5000)
+	closeCh := make(chan bool)
 	defer func() {
-		cl <- true
+		closeCh <- true
 	}()
-	go reply(c, ch, cl)
+	go reply(conn, replyCh, closeCh)
 	for {
 		b, e := r.ReadByte()
 		if e != nil {
@@ -54,9 +52,9 @@ func process(c net.Conn) {
 			return
 		}
 		if b == 'S' {
-			e = set(r)
+			e = set(conn, r)
 		} else if b == 'G' {
-			e = get(ch, r)
+			e = get(replyCh, r)
 		} else {
 			log.Println("close connection due to invalid operation:", b)
 			return

@@ -84,11 +84,6 @@ func (r *rocksdbCache) Set(key string, value []byte) {
 	r.writeChan <- &writeTask{key, value}
 }
 
-func (r *rocksdbCache) Del(key string) {
-	//TODO implement
-	return not_imple
-}
-
 func NewRocksdbCache() *rocksdbCache {
 	options := C.rocksdb_options_create()
 	C.rocksdb_options_increase_parallelism(options, 16)

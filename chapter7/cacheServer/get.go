@@ -1,14 +1,10 @@
 package main
 
 import (
-	"./cache"
 	"bufio"
 	"fmt"
 	"io"
 	"log"
-	"net"
-	"strconv"
-	"strings"
 )
 
 func get(ch chan chan []byte, r *bufio.Reader) error {
@@ -25,7 +21,7 @@ func get(ch chan chan []byte, r *bufio.Reader) error {
 		c <- []byte("6 reject")
 	} else {
 		go func() {
-			v := cache.Get(key)
+			v := ca.Get(key)
 			b := []byte(fmt.Sprintf("0 %d ", len(v)) + string(v))
 			c <- b
 		}()

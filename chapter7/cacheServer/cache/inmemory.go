@@ -22,9 +22,3 @@ func (c *InMemoryCache) Get(k string) []byte {
 func NewInMemoryCache() *InMemoryCache {
 	return &InMemoryCache{make(map[string][]byte), sync.RWMutex{}}
 }
-
-func (c *InMemoryCache) Del(k string) {
-	c.mutex.Lock()
-	defer c.mutex.Unlock()
-	delete(c.c, k)
-}

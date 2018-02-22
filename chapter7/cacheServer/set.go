@@ -1,17 +1,13 @@
 package main
 
 import (
-	"./cache"
 	"bufio"
-	"fmt"
 	"io"
 	"log"
 	"net"
-	"strconv"
-	"strings"
 )
 
-func set(r *bufio.Reader) error {
+func set(conn net.Conn, r *bufio.Reader) error {
 	klen := readLen(r)
 	vlen := readLen(r)
 	k := make([]byte, klen)
@@ -28,10 +24,10 @@ func set(r *bufio.Reader) error {
 	}
 	key := string(k)
 	if !node.ShouldProcess(key) {
-		_, e = c.Write([]byte("6 reject"))
+		_, e = conn.Write([]byte("6 reject"))
 	} else {
-		cache.Set(key, v)
-		_, e = c.Write([]byte("0 "))
+		ca.Set(key, v)
+		_, e = conn.Write([]byte("0 "))
 	}
 	return e
 }
