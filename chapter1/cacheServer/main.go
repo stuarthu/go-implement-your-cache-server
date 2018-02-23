@@ -7,8 +7,5 @@ import (
 )
 
 func main() {
-	httpServer := &myHttp.Server{ca}
-	//    http.Handle("/cache/", httpServer)
-	//    http.Handle("/status/", httpServer)
-	log.Fatal(http.ListenAndServe(":12345", httpServer))
+	log.Fatal(http.ListenAndServe(":12345", myHttp.NewHandler(ca)))
 }

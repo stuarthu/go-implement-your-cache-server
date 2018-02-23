@@ -1,7 +1,6 @@
 package http
 
 import (
-	"../cache"
 	"encoding/json"
 	"io/ioutil"
 	"log"
@@ -9,24 +8,20 @@ import (
 	"strings"
 )
 
-type Server struct {
-	cache.Cache
-}
-
-func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	res := strings.Split(r.URL.EscapedPath(), "/")[1]
 	if res == "status" {
-		s.ServeStatus(w, r)
+		h.serveStatus(w, r)
 		return
 	}
 	if res == "cache" {
-		s.ServeCache(w, r)
+		h.serveCache(w, r)
 		return
 	}
 	w.WriteHeader(http.StatusNotFound)
 }
 
-func (s *Server) ServeCache(w http.ResponseWriter, r *http.Request) {
+func (h *handler) serveCache(w http.ResponseWriter, r *http.Request) {
 	key := strings.Split(r.URL.EscapedPath(), "/")[2]
 	if len(key) == 0 {
 		w.WriteHeader(http.StatusBadRequest)
@@ -36,7 +31,7 @@ func (s *Server) ServeCache(w http.ResponseWriter, r *http.Request) {
 	if m == http.MethodPut {
 		b, _ := ioutil.ReadAll(r.Body)
 		if len(b) != 0 {
-			s.Set(key, b)
+			h.Set(key, b)
 		} else {
 			log.Println(len(b))
 			w.WriteHeader(http.StatusBadRequest)
@@ -44,7 +39,7 @@ func (s *Server) ServeCache(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if m == http.MethodGet {
-		b := s.Get(key)
+		b := h.Get(key)
 		if len(b) != 0 {
 			w.Write(b)
 		} else {
@@ -53,18 +48,18 @@ func (s *Server) ServeCache(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if m == http.MethodDelete {
-		s.Del(key)
+		h.Del(key)
 		return
 	}
 	w.WriteHeader(http.StatusMethodNotAllowed)
 }
 
-func (s *Server) ServeStatus(w http.ResponseWriter, r *http.Request) {
+func (h *handler) serveStatus(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
-	stat := s.GetStat()
+	stat := h.GetStat()
 	b, _ := json.Marshal(stat)
 	w.Write(b)
 }
