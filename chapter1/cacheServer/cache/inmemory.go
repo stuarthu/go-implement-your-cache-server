@@ -2,13 +2,13 @@ package cache
 
 import "sync"
 
-type InMemoryCache struct {
+type inMemoryCache struct {
 	c     map[string][]byte
 	mutex sync.RWMutex
 	Stat
 }
 
-func (c *InMemoryCache) Set(k string, v []byte) error {
+func (c *inMemoryCache) Set(k string, v []byte) error {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 	c.c[k] = v
@@ -16,13 +16,13 @@ func (c *InMemoryCache) Set(k string, v []byte) error {
 	return nil
 }
 
-func (c *InMemoryCache) Get(k string) ([]byte, error) {
+func (c *inMemoryCache) Get(k string) ([]byte, error) {
 	c.mutex.RLock()
 	defer c.mutex.RUnlock()
 	return c.c[k], nil
 }
 
-func (c *InMemoryCache) Del(k string) error {
+func (c *inMemoryCache) Del(k string) error {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 	v, exist := c.c[k]
@@ -33,10 +33,10 @@ func (c *InMemoryCache) Del(k string) error {
 	return nil
 }
 
-func (c *InMemoryCache) GetStat() Stat {
+func (c *inMemoryCache) GetStat() Stat {
 	return c.Stat
 }
 
-func NewInMemoryCache() *InMemoryCache {
-	return &InMemoryCache{make(map[string][]byte), sync.RWMutex{}, Stat{}}
+func newInMemoryCache() *inMemoryCache {
+	return &inMemoryCache{make(map[string][]byte), sync.RWMutex{}, Stat{}}
 }

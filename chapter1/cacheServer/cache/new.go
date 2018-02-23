@@ -3,11 +3,13 @@ package cache
 import "log"
 
 func New(typ string) Cache {
-	defer log.Println(typ, "ready to serve")
-
+	var c Cache
 	if typ == "inmemory" {
-		return NewInMemoryCache()
+		c = newInMemoryCache()
 	}
-
-	panic("unknown cache type " + typ)
+	if c == nil {
+		panic("unknown cache type " + typ)
+	}
+	log.Println(typ, "ready to serve")
+	return c
 }
