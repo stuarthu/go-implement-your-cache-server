@@ -8,28 +8,29 @@ type InMemoryCache struct {
 	Stat
 }
 
-func (c *InMemoryCache) Set(k string, v []byte) {
+func (c *InMemoryCache) Set(k string, v []byte) error {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 	c.c[k] = v
 	c.add(k, v)
+	return nil
 }
 
-func (c *InMemoryCache) Get(k string) []byte {
+func (c *InMemoryCache) Get(k string) ([]byte, error) {
 	c.mutex.RLock()
 	defer c.mutex.RUnlock()
-	return c.c[k]
+	return c.c[k], nil
 }
 
-func (c *InMemoryCache) Del(k string) {
+func (c *InMemoryCache) Del(k string) error {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 	v, exist := c.c[k]
-	if !exist {
-		return
+	if exist {
+		delete(c.c, k)
+		c.del(k, v)
 	}
-	delete(c.c, k)
-	c.del(k, v)
+	return nil
 }
 
 func (c *InMemoryCache) GetStat() Stat {

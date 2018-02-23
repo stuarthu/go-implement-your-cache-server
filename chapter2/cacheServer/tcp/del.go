@@ -10,7 +10,5 @@ func (s *server) del(conn net.Conn, r *bufio.Reader) error {
 	if e != nil {
 		return e
 	}
-	s.Del(k)
-	_, e = conn.Write([]byte("0 "))
-	return e
+	return replyError(s.Del(k), conn)
 }

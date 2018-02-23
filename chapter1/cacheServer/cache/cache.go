@@ -7,9 +7,9 @@ type Stat struct {
 }
 
 type Cache interface {
-	Set(string, []byte)
-	Get(string) []byte
-	Del(string)
+	Set(string, []byte) error
+	Get(string) ([]byte, error)
+	Del(string) error
 	GetStat() Stat
 }
 

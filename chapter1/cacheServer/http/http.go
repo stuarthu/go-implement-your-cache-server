@@ -31,24 +31,34 @@ func (h *handler) serveCache(w http.ResponseWriter, r *http.Request) {
 	if m == http.MethodPut {
 		b, _ := ioutil.ReadAll(r.Body)
 		if len(b) != 0 {
-			h.Set(key, b)
-		} else {
-			log.Println(len(b))
-			w.WriteHeader(http.StatusBadRequest)
+			e := h.Set(key, b)
+			if e != nil {
+				log.Println(e)
+				w.WriteHeader(http.StatusInternalServerError)
+			}
 		}
 		return
 	}
 	if m == http.MethodGet {
-		b := h.Get(key)
-		if len(b) != 0 {
-			w.Write(b)
-		} else {
-			w.WriteHeader(http.StatusNotFound)
+		b, e := h.Get(key)
+		if e != nil {
+			log.Println(e)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
 		}
+		if len(b) == 0 {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+		w.Write(b)
 		return
 	}
 	if m == http.MethodDelete {
-		h.Del(key)
+		e := h.Del(key)
+		if e != nil {
+			log.Println(e)
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 		return
 	}
 	w.WriteHeader(http.StatusMethodNotAllowed)

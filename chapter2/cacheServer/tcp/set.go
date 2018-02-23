@@ -10,7 +10,5 @@ func (s *server) set(conn net.Conn, r *bufio.Reader) error {
 	if e != nil {
 		return e
 	}
-	s.Set(k, v)
-	_, e = conn.Write([]byte("0 "))
-	return e
+	return replyError(s.Set(k, v), conn)
 }
