@@ -1,7 +1,0 @@
-git submodule update --init
-
-cd cache/rocksdb && make static_lib
-
-cd httpServer && go build
-
-cd tcpServer && go build
