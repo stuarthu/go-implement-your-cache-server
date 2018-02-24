@@ -10,5 +10,5 @@ func (s *server) set(conn net.Conn, r *bufio.Reader) error {
 	if e != nil {
 		return e
 	}
-	return replyError(s.Set(k, v), conn)
+	return sendResponse(nil, s.Set(k, v), conn)
 }

@@ -2,6 +2,7 @@ package tcp
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"net"
 	"strconv"
@@ -71,4 +72,16 @@ func readKeyAndValue(r *bufio.Reader) (string, []byte, error) {
 		return "", nil, e
 	}
 	return string(k), v, nil
+}
+
+func sendResponse(value []byte, err error, conn net.Conn) error {
+	if err != nil {
+		errString := err.Error()
+		tmp := fmt.Sprintf("-%d ", len(errString)) + errString
+		_, e := conn.Write([]byte(tmp))
+		return e
+	}
+	vlen := fmt.Sprintf("%d ", len(value))
+	_, e := conn.Write(append([]byte(vlen), value...))
+	return e
 }

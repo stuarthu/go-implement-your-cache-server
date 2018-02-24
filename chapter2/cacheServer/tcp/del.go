@@ -10,5 +10,5 @@ func (s *server) del(conn net.Conn, r *bufio.Reader) error {
 	if e != nil {
 		return e
 	}
-	return replyError(s.Del(k), conn)
+	return sendResponse(nil, s.Del(k), conn)
 }
