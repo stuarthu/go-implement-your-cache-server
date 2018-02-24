@@ -1,13 +1,13 @@
 package main
 
 import (
-	myHttp "./http"
+	"./cache"
+	"./http"
 	"./tcp"
-	"log"
-	"net/http"
 )
 
 func main() {
-	go tcp.NewServer(ca).Listen()
-	log.Fatal(http.ListenAndServe(":12345", myHttp.NewHandler(ca)))
+	ca := cache.New("inmemory")
+	go tcp.New(ca).Listen()
+	http.New(ca).Listen()
 }

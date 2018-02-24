@@ -16,7 +16,7 @@ func main() {
 	cmd := &cacheClient.Cmd{*op, *key, *value, nil}
 	client.Run(cmd)
 	if cmd.Error != nil {
-		fmt.Println(cmd.Error)
+		fmt.Println("error:", cmd.Error)
 	} else {
 		fmt.Println(cmd.Value)
 	}

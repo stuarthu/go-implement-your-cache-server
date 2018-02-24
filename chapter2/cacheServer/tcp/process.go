@@ -7,7 +7,32 @@ import (
 	"net"
 )
 
-func (s *server) process(conn net.Conn) {
+func (s *Server) get(conn net.Conn, r *bufio.Reader) error {
+	k, e := s.readKey(r)
+	if e != nil {
+		return e
+	}
+	v, e := s.Get(k)
+	return sendResponse(v, e, conn)
+}
+
+func (s *Server) set(conn net.Conn, r *bufio.Reader) error {
+	k, v, e := s.readKeyAndValue(r)
+	if e != nil {
+		return e
+	}
+	return sendResponse(nil, s.Set(k, v), conn)
+}
+
+func (s *Server) del(conn net.Conn, r *bufio.Reader) error {
+	k, e := s.readKey(r)
+	if e != nil {
+		return e
+	}
+	return sendResponse(nil, s.Del(k), conn)
+}
+
+func (s *Server) process(conn net.Conn) {
 	defer conn.Close()
 	r := bufio.NewReader(conn)
 	for {

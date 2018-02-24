@@ -12,27 +12,67 @@ type result struct {
 	e error
 }
 
-func reply(conn net.Conn, resultCh chan chan *result, closeCh chan bool) {
+func (s *Server) get(ch chan chan *result, r *bufio.Reader) {
+	c := make(chan *result)
+	ch <- c
+	k, e := s.readKey(r)
+	if e != nil {
+		c <- &result{nil, e}
+		return
+	}
+	go func() {
+		v, e := s.Get(k)
+		c <- &result{v, e}
+	}()
+}
+
+func (s *Server) set(ch chan chan *result, r *bufio.Reader) {
+	c := make(chan *result)
+	ch <- c
+	k, v, e := s.readKeyAndValue(r)
+	if e != nil {
+		c <- &result{nil, e}
+		return
+	}
+	go func() {
+		c <- &result{nil, s.Set(k, v)}
+	}()
+}
+
+func (s *Server) del(ch chan chan *result, r *bufio.Reader) {
+	c := make(chan *result)
+	ch <- c
+	k, e := s.readKey(r)
+	if e != nil {
+		c <- &result{nil, e}
+		return
+	}
+	go func() {
+		c <- &result{nil, s.Del(k)}
+	}()
+}
+
+func reply(conn net.Conn, resultCh chan chan *result) {
+	defer conn.Close()
 	for {
-		select {
-		case c := <-resultCh:
-			r := <-c
-			sendResponse(r.v, r.e, conn)
-		case <-closeCh:
-			conn.Close()
+		c, open := <-resultCh
+		if !open {
+			return
+		}
+		r := <-c
+		e := sendResponse(r.v, r.e, conn)
+		if e != nil {
+			log.Println("close connection due to error:", e)
 			return
 		}
 	}
 }
 
-func (s *server) process(conn net.Conn) {
+func (s *Server) process(conn net.Conn) {
 	r := bufio.NewReader(conn)
 	resultCh := make(chan chan *result, 5000)
-	closeCh := make(chan bool)
-	defer func() {
-		closeCh <- true
-	}()
-	go reply(conn, resultCh, closeCh)
+	defer close(resultCh)
+	go reply(conn, resultCh)
 	for {
 		op, e := r.ReadByte()
 		if e != nil {
@@ -42,17 +82,13 @@ func (s *server) process(conn net.Conn) {
 			return
 		}
 		if op == 'S' {
-			e = s.set(resultCh, r)
+			s.set(resultCh, r)
 		} else if op == 'G' {
-			e = s.get(resultCh, r)
+			s.get(resultCh, r)
 		} else if op == 'D' {
-			e = s.del(resultCh, r)
+			s.del(resultCh, r)
 		} else {
 			log.Println("close connection due to invalid operation:", op)
-			return
-		}
-		if e != nil {
-			log.Println("close connection due to error:", e)
 			return
 		}
 	}

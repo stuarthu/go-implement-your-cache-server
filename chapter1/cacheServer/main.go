@@ -1,11 +1,11 @@
 package main
 
 import (
-	myHttp "./http"
-	"log"
-	"net/http"
+	"./cache"
+	"./http"
 )
 
 func main() {
-	log.Fatal(http.ListenAndServe(":12345", myHttp.NewHandler(ca)))
+	ca := cache.New("inmemory")
+	http.New(ca).Listen()
 }
