@@ -5,10 +5,10 @@ import "log"
 func New(typ string) Cache {
 	var c Cache
 	if typ == "inmemory" {
-		c = NewInMemoryCache()
+		c = newInMemoryCache()
 	}
 	if typ == "rocksdb" {
-		c = NewRocksdbCache()
+		c = newRocksdbCache()
 	}
 	if c == nil {
 		panic("unknown cache type " + typ)

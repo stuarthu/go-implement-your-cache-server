@@ -8,17 +8,9 @@ import "C"
 import (
 	"errors"
 	"regexp"
-	"runtime"
 	"strconv"
 	"unsafe"
 )
-
-type rocksdbCache struct {
-	db           *C.rocksdb_t
-	readoptions  *C.rocksdb_readoptions_t
-	writeoptions *C.rocksdb_writeoptions_t
-	err          *C.char
-}
 
 func (r *rocksdbCache) Get(key string) ([]byte, error) {
 	ckey := C.CString(key)
@@ -31,18 +23,6 @@ func (r *rocksdbCache) Get(key string) ([]byte, error) {
 	b := C.GoBytes(unsafe.Pointer(value), C.int(length))
 	C.free(unsafe.Pointer(value))
 	return b, nil
-}
-
-func (r *rocksdbCache) Set(key string, value []byte) error {
-	ckey := C.CString(key)
-	defer C.free(unsafe.Pointer(ckey))
-	cvalue := C.CBytes(value)
-	defer C.free(cvalue)
-	C.rocksdb_put(r.db, r.writeoptions, ckey, C.size_t(len(key)), (*C.char)(cvalue), C.size_t(len(value)), &r.err)
-	if r.err != nil {
-		return errors.New(C.GoString(r.err))
-	}
-	return nil
 }
 
 func (r *rocksdbCache) Del(key string) error {
@@ -61,7 +41,7 @@ func (r *rocksdbCache) GetStat() Stat {
 	value := C.rocksdb_property_value(r.db, prop)
 	defer C.free(unsafe.Pointer(value))
 	stat := C.GoString(value)
-	pattern := regexp.MustCompile(`(?P<key>[^;]+)=(?P<value>[^;]+);`)
+	pattern := regexp.MustCompile(`([^;]+)=([^;]+);`)
 	s := Stat{}
 	for _, submatches := range pattern.FindAllStringSubmatch(stat, -1) {
 		if submatches[1] == " # entries" {
@@ -73,17 +53,4 @@ func (r *rocksdbCache) GetStat() Stat {
 		}
 	}
 	return s
-}
-
-func NewRocksdbCache() *rocksdbCache {
-	options := C.rocksdb_options_create()
-	C.rocksdb_options_increase_parallelism(options, C.int(runtime.NumCPU()))
-	C.rocksdb_options_set_create_if_missing(options, 1)
-	var err *C.char
-	db := C.rocksdb_open(options, C.CString("/mnt/rocksdb"), &err)
-	if err != nil {
-		panic(C.GoString(err))
-	}
-	C.rocksdb_options_destroy(options)
-	return &rocksdbCache{db, C.rocksdb_readoptions_create(), C.rocksdb_writeoptions_create(), err}
 }
