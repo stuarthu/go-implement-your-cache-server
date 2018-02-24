@@ -116,7 +116,7 @@ func operate(id, count int, ch chan *result) {
 				name = "get"
 			}
 		}
-		c := &cacheClient.Cmd{name, key, value}
+		c := &cacheClient.Cmd{name, key, value, nil}
 		if pipelen > 1 {
 			cmds = append(cmds, c)
 			if len(cmds) == pipelen {
@@ -134,30 +134,29 @@ func operate(id, count int, ch chan *result) {
 }
 
 var typ, server, operation string
-var total, valueSize, threads, pipelen, keyspacelen int
+var total, valueSize, threads, keyspacelen, pipelen int
 
 func init() {
 	flag.StringVar(&typ, "type", "redis", "cache server type")
-	flag.StringVar(&server, "h", "10.29.102.179", "cache server address")
+	flag.StringVar(&server, "h", "localhost", "cache server address")
 	flag.IntVar(&total, "n", 1000, "total number of requests")
 	flag.IntVar(&valueSize, "d", 1000, "data size of SET/GET value in bytes")
-	flag.IntVar(&pipelen, "P", 1, "pipeline length")
 	flag.IntVar(&threads, "c", 1, "number of parallel connections")
 	flag.StringVar(&operation, "t", "set", "test set, could be get/set/mixed")
 	flag.IntVar(&keyspacelen, "r", 0, "keyspacelen, use random keys from 0 to keyspacelen-1")
+	flag.IntVar(&pipelen, "P", 1, "pipeline length")
 	flag.Parse()
 	fmt.Println("type is", typ)
 	fmt.Println("server is", server)
 	fmt.Println("total", total, "requests")
 	fmt.Println("data size is", valueSize)
-	fmt.Println("pipeline length is", pipelen)
 	fmt.Println("we have", threads, "connections")
 	fmt.Println("operation is", operation)
 	fmt.Println("keyspacelen is", keyspacelen)
+	fmt.Println("pipeline length is", pipelen)
 
 	rand.Seed(time.Now().UnixNano())
 }
-
 func main() {
 	ch := make(chan *result, threads)
 	res := &result{0, 0, 0, make([]statistic, 0)}

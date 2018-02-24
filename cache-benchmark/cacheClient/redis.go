@@ -2,39 +2,39 @@ package cacheClient
 
 import (
 	"github.com/go-redis/redis"
-	"log"
 )
 
 type redisClient struct {
 	client *redis.Client
 }
 
-func (r *redisClient) get(key string) string {
+func (r *redisClient) get(key string) (string, error) {
 	res, e := r.client.Get(key).Result()
 	if e == redis.Nil {
-		return ""
+		return "", nil
 	}
-	if e != nil {
-		log.Println(key)
-		panic(e)
-	}
-	return res
+	return res, e
 }
 
-func (r *redisClient) set(key, value string) {
-	e := r.client.Set(key, value, 0).Err()
-	if e != nil {
-		panic(e)
-	}
+func (r *redisClient) set(key, value string) error {
+	return r.client.Set(key, value, 0).Err()
+}
+
+func (r *redisClient) del(key string) error {
+	return r.client.Del(key).Err()
 }
 
 func (r *redisClient) Run(c *Cmd) {
 	if c.Name == "get" {
-		c.Value = r.get(c.Key)
+		c.Value, c.Error = r.get(c.Key)
 		return
 	}
 	if c.Name == "set" {
-		r.set(c.Key, c.Value)
+		c.Error = r.set(c.Key, c.Value)
+		return
+	}
+	if c.Name == "del" {
+		c.Error = r.del(c.Key)
 		return
 	}
 	panic("unknown cmd name " + c.Name)
@@ -51,6 +51,8 @@ func (r *redisClient) PipelinedRun(cmds []*Cmd) {
 			cmders[i] = pipe.Get(c.Key)
 		} else if c.Name == "set" {
 			cmders[i] = pipe.Set(c.Key, c.Value, 0)
+		} else if c.Name == "del" {
+			cmders[i] = pipe.Del(c.Key)
 		} else {
 			panic("unknown cmd name " + c.Name)
 		}
@@ -63,17 +65,16 @@ func (r *redisClient) PipelinedRun(cmds []*Cmd) {
 		if c.Name == "get" {
 			value, e := cmders[i].(*redis.StringCmd).Result()
 			if e == redis.Nil {
-				value = ""
-			} else if e != nil {
-				log.Println(c.Key)
-				panic(e)
+				value, e = "", nil
 			}
-			c.Value = value
+			c.Value, c.Error = value, e
+		} else {
+			c.Error = cmders[i].Err()
 		}
 	}
 }
 
-func NewRedisClient(server string) *redisClient {
+func newRedisClient(server string) *redisClient {
 	client := redis.NewClient(&redis.Options{Addr: server + ":6379", ReadTimeout: -1})
 	return &redisClient{client}
 }

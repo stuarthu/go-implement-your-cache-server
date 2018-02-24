@@ -2,6 +2,7 @@ package cacheClient
 
 import (
 	"bufio"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -13,6 +14,22 @@ import (
 type tcpClient struct {
 	c net.Conn
 	r *bufio.Reader
+}
+
+func (r *tcpClient) sendGet(key string) {
+	klen := len(key)
+	r.c.Write([]byte(fmt.Sprintf("G%d %s", klen, key)))
+}
+
+func (r *tcpClient) sendSet(key, value string) {
+	klen := len(key)
+	vlen := len(value)
+	r.c.Write([]byte(fmt.Sprintf("S%d %d %s%s", klen, vlen, key, value)))
+}
+
+func (r *tcpClient) sendDel(key string) {
+	klen := len(key)
+	r.c.Write([]byte(fmt.Sprintf("D%d %s", klen, key)))
 }
 
 func readLen(r *bufio.Reader) int {
@@ -29,43 +46,41 @@ func readLen(r *bufio.Reader) int {
 	return l
 }
 
-func (r *tcpClient) sendGet(key string) {
-	klen := len(key)
-	c := fmt.Sprintf("G%d %s", klen, key)
-	_, e := r.c.Write([]byte(c))
-	if e != nil {
-		panic(e)
-	}
-}
-
-func (r *tcpClient) recvValue() string {
+func (r *tcpClient) recvResponse() (string, error) {
 	vlen := readLen(r.r)
+	if vlen == 0 {
+		return "", nil
+	}
+	if vlen < 0 {
+		err := make([]byte, -vlen)
+		_, e := io.ReadFull(r.r, err)
+		if e != nil {
+			return "", e
+		}
+		return "", errors.New(string(err))
+	}
 	value := make([]byte, vlen)
 	_, e := io.ReadFull(r.r, value)
 	if e != nil {
-		panic(e)
+		return "", e
 	}
-	return string(value)
-}
-
-func (r *tcpClient) sendSet(key, value string) {
-	klen := len(key)
-	vlen := len(value)
-	c := fmt.Sprintf("S%d %d %s%s", klen, vlen, key, value)
-	_, e := r.c.Write([]byte(c))
-	if e != nil {
-		panic(e)
-	}
+	return string(value), nil
 }
 
 func (r *tcpClient) Run(c *Cmd) {
 	if c.Name == "get" {
 		r.sendGet(c.Key)
-		c.Value = r.recvValue()
+		c.Value, c.Error = r.recvResponse()
 		return
 	}
 	if c.Name == "set" {
 		r.sendSet(c.Key, c.Value)
+		_, c.Error = r.recvResponse()
+		return
+	}
+	if c.Name == "del" {
+		r.sendDel(c.Key)
+		_, c.Error = r.recvResponse()
 		return
 	}
 	panic("unknown cmd name " + c.Name)
@@ -82,15 +97,16 @@ func (r *tcpClient) PipelinedRun(cmds []*Cmd) {
 		if c.Name == "set" {
 			r.sendSet(c.Key, c.Value)
 		}
+		if c.Name == "del" {
+			r.sendDel(c.Key)
+		}
 	}
 	for _, c := range cmds {
-		if c.Name == "get" {
-			c.Value = r.recvValue()
-		}
+		c.Value, c.Error = r.recvResponse()
 	}
 }
 
-func NewTCPClient(server string) *tcpClient {
+func newTCPClient(server string) *tcpClient {
 	c, e := net.Dial("tcp", server+":12346")
 	if e != nil {
 		panic(e)
