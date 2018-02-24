@@ -2,7 +2,7 @@ package cacheClient
 
 import (
 	"bufio"
-    "errors"
+	"errors"
 	"fmt"
 	"io"
 	"log"
