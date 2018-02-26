@@ -1,1 +1,1 @@
-../../../chapter1/cacheServer/cache/inmemory.go
+../../../chapter1/server/cache/inmemory.go

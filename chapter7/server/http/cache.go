@@ -1,1 +1,1 @@
-../../../chapter1/cacheServer/http/cache.go
+../../../chapter1/server/http/cache.go

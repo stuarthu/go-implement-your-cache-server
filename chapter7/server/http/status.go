@@ -1,1 +1,1 @@
-../../../chapter1/cacheServer/http/status.go
+../../../chapter1/server/http/status.go
