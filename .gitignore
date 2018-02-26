@@ -1,5 +1,5 @@
 pkg/
 src/
-*/cacheServer/cacheServer
+*/server/server
 cache-benchmark/cache-benchmark
-tcpClient/tcpClient
+client/client
