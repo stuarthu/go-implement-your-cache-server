@@ -10,12 +10,10 @@ import (
 	"unsafe"
 )
 
-func (c *rocksdbCache) Set(key string, value []byte) error {
+func (c *rocksdbCache) Del(key string) error {
 	k := C.CString(key)
 	defer C.free(unsafe.Pointer(k))
-	v := C.CBytes(value)
-	defer C.free(v)
-	C.rocksdb_put(c.db, c.wo, k, C.size_t(len(key)), (*C.char)(v), C.size_t(len(value)), &c.e)
+	C.rocksdb_delete(c.db, c.wo, k, C.size_t(len(key)), &c.e)
 	if c.e != nil {
 		return errors.New(C.GoString(c.e))
 	}

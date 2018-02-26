@@ -8,6 +8,18 @@ type inMemoryCache struct {
 	Stat
 }
 
+func (s *Stat) add(k string, v []byte) {
+	s.Count += 1
+	s.KeySize += int64(len(k))
+	s.ValueSize += int64(len(v))
+}
+
+func (s *Stat) del(k string, v []byte) {
+	s.Count -= 1
+	s.KeySize -= int64(len(k))
+	s.ValueSize -= int64(len(v))
+}
+
 func (c *inMemoryCache) Set(k string, v []byte) error {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()

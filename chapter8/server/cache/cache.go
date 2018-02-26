@@ -5,4 +5,5 @@ type Cache interface {
 	Get(string) ([]byte, error)
 	Del(string) error
 	GetStat() Stat
+	NewScanner() Scanner
 }

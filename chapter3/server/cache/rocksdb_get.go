@@ -10,14 +10,14 @@ import (
 	"unsafe"
 )
 
-func (c *rocksdbCache) Set(key string, value []byte) error {
+func (c *rocksdbCache) Get(key string) ([]byte, error) {
 	k := C.CString(key)
 	defer C.free(unsafe.Pointer(k))
-	v := C.CBytes(value)
-	defer C.free(v)
-	C.rocksdb_put(c.db, c.wo, k, C.size_t(len(key)), (*C.char)(v), C.size_t(len(value)), &c.e)
+	var length C.size_t
+	v := C.rocksdb_get(c.db, c.ro, k, C.size_t(len(key)), &length, &c.e)
 	if c.e != nil {
-		return errors.New(C.GoString(c.e))
+		return nil, errors.New(C.GoString(c.e))
 	}
-	return nil
+	defer C.free(unsafe.Pointer(v))
+	return C.GoBytes(unsafe.Pointer(v), C.int(length)), nil
 }
