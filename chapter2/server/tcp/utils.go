@@ -3,7 +3,6 @@ package tcp
 import (
 	"bufio"
 	"fmt"
-	"log"
 	"net"
 	"strconv"
 	"strings"
@@ -22,7 +21,6 @@ func readLen(r *bufio.Reader) (int, error) {
 }
 
 func sendResponse(value []byte, err error, conn net.Conn) error {
-	log.Println("send response:", value, err)
 	if err != nil {
 		errString := err.Error()
 		tmp := fmt.Sprintf("-%d ", len(errString)) + errString

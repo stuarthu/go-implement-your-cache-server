@@ -19,7 +19,7 @@ func (h *clusterHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	b, e := json.Marshal(m)
 	if e != nil {
 		log.Println(e)
-		w.WriteHeader(http.StatusInternalError)
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 	w.Write(b)
