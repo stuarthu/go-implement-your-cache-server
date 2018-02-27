@@ -1,22 +1,26 @@
 package http
 
 import (
-	"../cache"
 	"encoding/json"
+	"log"
 	"net/http"
 )
 
 type statusHandler struct {
-	cache.Cache
+	*Server
 }
 
-func (s *statusHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *statusHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
-	stat := s.GetStat()
-	b, _ := json.Marshal(stat)
+	b, e := json.Marshal(h.GetStat())
+	if e != nil {
+		log.Println(e)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 	w.Write(b)
 }
 

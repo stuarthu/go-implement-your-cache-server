@@ -2,7 +2,7 @@ package cluster
 
 import (
 	"github.com/hashicorp/memberlist"
-	_ "io/ioutil"
+	"io/ioutil"
 	"stathat.com/c/consistent"
 	"time"
 )
@@ -23,13 +23,16 @@ func (n *node) Addr() string {
 }
 
 func New(addr, cluster string) (Node, error) {
-	conf := memberlist.DefaultLocalConfig()
+	conf := memberlist.DefaultLANConfig()
 	conf.Name = addr
 	conf.BindAddr = addr
-	//conf.LogOutput = ioutil.Discard
+	conf.LogOutput = ioutil.Discard
 	l, e := memberlist.Create(conf)
 	if e != nil {
 		return nil, e
+	}
+	if cluster == "" {
+		cluster = addr
 	}
 	clu := []string{cluster}
 	_, e = l.Join(clu)

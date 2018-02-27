@@ -11,7 +11,7 @@ import (
 
 func main() {
 	typ := flag.String("type", "inmemory", "cache type")
-	node := flag.String("node", "", "node address")
+	node := flag.String("node", "127.0.0.1", "node address")
 	clus := flag.String("cluster", "", "cluster address")
 	flag.Parse()
 	log.Println("type is", *typ)

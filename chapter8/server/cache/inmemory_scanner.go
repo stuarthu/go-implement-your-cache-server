@@ -12,7 +12,9 @@ func (s *inMemoryScanner) Close() {
 
 func (s *inMemoryScanner) Scan() bool {
 	p, ok := <-s.pairCh
-	s.k, s.v = p.k, p.v
+	if ok {
+		s.k, s.v = p.k, p.v
+	}
 	return ok
 }
 

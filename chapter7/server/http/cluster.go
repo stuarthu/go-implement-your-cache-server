@@ -1,22 +1,27 @@
 package http
 
 import (
-	"../cluster"
 	"encoding/json"
+	"log"
 	"net/http"
 )
 
 type clusterHandler struct {
-	cluster.Node
+	*Server
 }
 
-func (c *clusterHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *clusterHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 		return
 	}
-	m := c.Members()
-	b, _ := json.Marshal(m)
+	m := h.Members()
+	b, e := json.Marshal(m)
+	if e != nil {
+		log.Println(e)
+		w.WriteHeader(http.StatusInternalError)
+		return
+	}
 	w.Write(b)
 }
 

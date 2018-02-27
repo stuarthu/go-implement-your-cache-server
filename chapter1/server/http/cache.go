@@ -1,7 +1,6 @@
 package http
 
 import (
-	"../cache"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -9,10 +8,10 @@ import (
 )
 
 type cacheHandler struct {
-	cache.Cache
+	*Server
 }
 
-func (c *cacheHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *cacheHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	key := strings.Split(r.URL.EscapedPath(), "/")[2]
 	if len(key) == 0 {
 		w.WriteHeader(http.StatusBadRequest)
@@ -22,7 +21,7 @@ func (c *cacheHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if m == http.MethodPut {
 		b, _ := ioutil.ReadAll(r.Body)
 		if len(b) != 0 {
-			e := c.Set(key, b)
+			e := h.Set(key, b)
 			if e != nil {
 				log.Println(e)
 				w.WriteHeader(http.StatusInternalServerError)
@@ -31,7 +30,7 @@ func (c *cacheHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if m == http.MethodGet {
-		b, e := c.Get(key)
+		b, e := h.Get(key)
 		if e != nil {
 			log.Println(e)
 			w.WriteHeader(http.StatusInternalServerError)
@@ -45,7 +44,7 @@ func (c *cacheHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if m == http.MethodDelete {
-		e := c.Del(key)
+		e := h.Del(key)
 		if e != nil {
 			log.Println(e)
 			w.WriteHeader(http.StatusInternalServerError)
