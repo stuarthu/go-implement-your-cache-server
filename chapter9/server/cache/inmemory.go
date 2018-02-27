@@ -6,7 +6,7 @@ import (
 )
 
 type value struct {
-	b       []byte
+	v       []byte
 	created time.Time
 }
 
@@ -28,7 +28,7 @@ func (c *inMemoryCache) Set(k string, v []byte) error {
 func (c *inMemoryCache) Get(k string) ([]byte, error) {
 	c.mutex.RLock()
 	defer c.mutex.RUnlock()
-	return c.c[k].b, nil
+	return c.c[k].v, nil
 }
 
 func (c *inMemoryCache) Del(k string) error {
@@ -37,7 +37,7 @@ func (c *inMemoryCache) Del(k string) error {
 	v, exist := c.c[k]
 	if exist {
 		delete(c.c, k)
-		c.del(k, v.b)
+		c.del(k, v.v)
 	}
 	return nil
 }

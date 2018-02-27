@@ -37,7 +37,7 @@ func (c *inMemoryCache) NewScanner() Scanner {
 			select {
 			case <-closeCh:
 				return
-			case pairCh <- &pair{k, v.b}:
+			case pairCh <- &pair{k, v.v}:
 			}
 			c.mutex.RLock()
 		}
