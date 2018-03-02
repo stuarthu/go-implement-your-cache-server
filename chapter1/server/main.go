@@ -6,6 +6,6 @@ import (
 )
 
 func main() {
-	ca := cache.New("inmemory")
-	http.New(ca).Listen()
+	c := cache.New("inmemory")
+	http.New(c).Listen()
 }
