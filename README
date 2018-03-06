@@ -5,5 +5,4 @@ go get github.com/hashicorp/memberlist
 go get stathat.com/c/consistent
 
 git submodule update --init
-git apply chapter9/rocksdb.diff --directory=rocksdb
 cd rocksdb && make static_lib
