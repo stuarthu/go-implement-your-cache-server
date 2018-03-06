@@ -3,3 +3,6 @@ src/
 */server/server
 cache-benchmark/cache-benchmark
 client/client
+rocksdb_performance/test_basic
+rocksdb_performance/test_batch_write
+rocksdb_performance/ingest_data
