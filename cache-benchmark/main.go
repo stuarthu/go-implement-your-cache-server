@@ -157,6 +157,7 @@ func init() {
 
 	rand.Seed(time.Now().UnixNano())
 }
+
 func main() {
 	ch := make(chan *result, threads)
 	res := &result{0, 0, 0, make([]statistic, 0)}
