@@ -95,7 +95,7 @@ func pipeline(client cacheClient.Client, cmds []*cacheClient.Cmd, r *result) {
 }
 
 func operate(id, count int, ch chan *result) {
-	client := cacheClient.NewCacheClient(typ, server)
+	client := cacheClient.New(typ, server)
 	cmds := make([]*cacheClient.Cmd, 0)
 	valuePrefix := strings.Repeat("a", valueSize)
 	r := &result{0, 0, 0, make([]statistic, 0)}

@@ -1,6 +1,6 @@
 package cacheClient
 
-func NewCacheClient(typ, server string) Client {
+func New(typ, server string) Client {
 	if typ == "redis" {
 		return newRedisClient(server)
 	}
