@@ -8,12 +8,12 @@ import (
 )
 
 type httpClient struct {
-	client *http.Client
+	*http.Client
 	server string
 }
 
 func (c *httpClient) get(key string) string {
-	resp, e := c.client.Get(c.server + key)
+	resp, e := c.Get(c.server + key)
 	if e != nil {
 		log.Println(key)
 		panic(e)
@@ -38,7 +38,7 @@ func (c *httpClient) set(key, value string) {
 		log.Println(key)
 		panic(e)
 	}
-	resp, e := c.client.Do(req)
+	resp, e := c.Do(req)
 	if e != nil {
 		log.Println(key)
 		panic(e)

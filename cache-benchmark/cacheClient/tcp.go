@@ -12,24 +12,24 @@ import (
 )
 
 type tcpClient struct {
-	c net.Conn
+	net.Conn
 	r *bufio.Reader
 }
 
-func (r *tcpClient) sendGet(key string) {
+func (c *tcpClient) sendGet(key string) {
 	klen := len(key)
-	r.c.Write([]byte(fmt.Sprintf("G%d %s", klen, key)))
+	c.Write([]byte(fmt.Sprintf("G%d %s", klen, key)))
 }
 
-func (r *tcpClient) sendSet(key, value string) {
+func (c *tcpClient) sendSet(key, value string) {
 	klen := len(key)
 	vlen := len(value)
-	r.c.Write([]byte(fmt.Sprintf("S%d %d %s%s", klen, vlen, key, value)))
+	c.Write([]byte(fmt.Sprintf("S%d %d %s%s", klen, vlen, key, value)))
 }
 
-func (r *tcpClient) sendDel(key string) {
+func (c *tcpClient) sendDel(key string) {
 	klen := len(key)
-	r.c.Write([]byte(fmt.Sprintf("D%d %s", klen, key)))
+	c.Write([]byte(fmt.Sprintf("D%d %s", klen, key)))
 }
 
 func readLen(r *bufio.Reader) int {
@@ -46,63 +46,63 @@ func readLen(r *bufio.Reader) int {
 	return l
 }
 
-func (r *tcpClient) recvResponse() (string, error) {
-	vlen := readLen(r.r)
+func (c *tcpClient) recvResponse() (string, error) {
+	vlen := readLen(c.r)
 	if vlen == 0 {
 		return "", nil
 	}
 	if vlen < 0 {
 		err := make([]byte, -vlen)
-		_, e := io.ReadFull(r.r, err)
+		_, e := io.ReadFull(c.r, err)
 		if e != nil {
 			return "", e
 		}
 		return "", errors.New(string(err))
 	}
 	value := make([]byte, vlen)
-	_, e := io.ReadFull(r.r, value)
+	_, e := io.ReadFull(c.r, value)
 	if e != nil {
 		return "", e
 	}
 	return string(value), nil
 }
 
-func (r *tcpClient) Run(c *Cmd) {
-	if c.Name == "get" {
-		r.sendGet(c.Key)
-		c.Value, c.Error = r.recvResponse()
+func (c *tcpClient) Run(cmd *Cmd) {
+	if cmd.Name == "get" {
+		c.sendGet(cmd.Key)
+		cmd.Value, cmd.Error = c.recvResponse()
 		return
 	}
-	if c.Name == "set" {
-		r.sendSet(c.Key, c.Value)
-		_, c.Error = r.recvResponse()
+	if cmd.Name == "set" {
+		c.sendSet(cmd.Key, cmd.Value)
+		_, cmd.Error = c.recvResponse()
 		return
 	}
-	if c.Name == "del" {
-		r.sendDel(c.Key)
-		_, c.Error = r.recvResponse()
+	if cmd.Name == "del" {
+		c.sendDel(cmd.Key)
+		_, cmd.Error = c.recvResponse()
 		return
 	}
-	panic("unknown cmd name " + c.Name)
+	panic("unknown cmd name " + cmd.Name)
 }
 
-func (r *tcpClient) PipelinedRun(cmds []*Cmd) {
+func (c *tcpClient) PipelinedRun(cmds []*Cmd) {
 	if len(cmds) == 0 {
 		return
 	}
-	for _, c := range cmds {
-		if c.Name == "get" {
-			r.sendGet(c.Key)
+	for _, cmd := range cmds {
+		if cmd.Name == "get" {
+			c.sendGet(cmd.Key)
 		}
-		if c.Name == "set" {
-			r.sendSet(c.Key, c.Value)
+		if cmd.Name == "set" {
+			c.sendSet(cmd.Key, cmd.Value)
 		}
-		if c.Name == "del" {
-			r.sendDel(c.Key)
+		if cmd.Name == "del" {
+			c.sendDel(cmd.Key)
 		}
 	}
-	for _, c := range cmds {
-		c.Value, c.Error = r.recvResponse()
+	for _, cmd := range cmds {
+		cmd.Value, cmd.Error = c.recvResponse()
 	}
 }
 

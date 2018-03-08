@@ -5,11 +5,11 @@ import (
 )
 
 type redisClient struct {
-	client *redis.Client
+	*redis.Client
 }
 
 func (r *redisClient) get(key string) (string, error) {
-	res, e := r.client.Get(key).Result()
+	res, e := r.Get(key).Result()
 	if e == redis.Nil {
 		return "", nil
 	}
@@ -17,11 +17,11 @@ func (r *redisClient) get(key string) (string, error) {
 }
 
 func (r *redisClient) set(key, value string) error {
-	return r.client.Set(key, value, 0).Err()
+	return r.Set(key, value, 0).Err()
 }
 
 func (r *redisClient) del(key string) error {
-	return r.client.Del(key).Err()
+	return r.Del(key).Err()
 }
 
 func (r *redisClient) Run(c *Cmd) {
@@ -44,7 +44,7 @@ func (r *redisClient) PipelinedRun(cmds []*Cmd) {
 	if len(cmds) == 0 {
 		return
 	}
-	pipe := r.client.Pipeline()
+	pipe := r.Pipeline()
 	cmders := make([]redis.Cmder, len(cmds))
 	for i, c := range cmds {
 		if c.Name == "get" {
@@ -75,6 +75,5 @@ func (r *redisClient) PipelinedRun(cmds []*Cmd) {
 }
 
 func newRedisClient(server string) *redisClient {
-	client := redis.NewClient(&redis.Options{Addr: server + ":6379", ReadTimeout: -1})
-	return &redisClient{client}
+	return &redisClient{redis.NewClient(&redis.Options{Addr: server + ":6379", ReadTimeout: -1})}
 }
