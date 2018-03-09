@@ -42,7 +42,7 @@ int main(int argc, char** argv)
     long end = tv.tv_sec * 1000000 + tv.tv_usec;
     std::cout << total << " records batch put in " << end - start << " usec, "
               << double(end - start) / total << " usec average, throughput is "
-              << (double)total * valueSize / (end - start) << " MB/s, qps is "
+              << (double)total * valueSize / (end - start) << " MB/s, rps is "
               << (double)1000000 * total / (end - start) << std::endl;
 
     delete db;
