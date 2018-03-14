@@ -18,6 +18,7 @@ func (h *rebalanceHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func (h *rebalanceHandler) rebalance() {
 	s := h.NewScanner()
+	defer s.Close()
 	c := &http.Client{}
 	for s.Scan() {
 		k := s.Key()
@@ -28,7 +29,6 @@ func (h *rebalanceHandler) rebalance() {
 			h.Del(k)
 		}
 	}
-	s.Close()
 }
 
 func (s *Server) rebalanceHandler() http.Handler {
