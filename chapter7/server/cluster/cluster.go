@@ -40,6 +40,7 @@ func New(addr, cluster string) (Node, error) {
 		return nil, e
 	}
 	circle := consistent.New()
+	circle.NumberOfReplicas = 256
 	go func() {
 		for {
 			m := l.Members()
