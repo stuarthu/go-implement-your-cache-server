@@ -6,3 +6,8 @@ go get stathat.com/c/consistent
 
 git submodule update --init
 cd rocksdb && make static_lib
+
+go build -o cache-benchmark/cache-benchmark cache-benchmark/main.go
+go build -o client/client client/main.go
+
+sudo apt-get install make g++ libz-dev libsnappy-dev libboost-dev liblz4-dev libzstd-dev

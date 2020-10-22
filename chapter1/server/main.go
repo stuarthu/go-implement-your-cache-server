@@ -1,8 +1,8 @@
 package main
 
 import (
-	"./cache"
-	"./http"
+	"github.com/stuarthu/go-implement-your-cache-server/chapter1/server/cache"
+	"github.com/stuarthu/go-implement-your-cache-server/chapter1/server/http"
 )
 
 func main() {

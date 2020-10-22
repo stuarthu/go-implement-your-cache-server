@@ -3,7 +3,7 @@ package cache
 // #include <stdlib.h>
 // #include "rocksdb/c.h"
 // #cgo CFLAGS: -I${SRCDIR}/../../../rocksdb/include
-// #cgo LDFLAGS: -L${SRCDIR}/../../../rocksdb -lrocksdb -lz -lpthread -lsnappy -lstdc++ -lm -O3
+// #cgo LDFLAGS: -L${SRCDIR}/../../../rocksdb -lrocksdb -lz -lbz2 -llz4 -lzstd -lpthread -lsnappy -lstdc++ -lm -O3
 import "C"
 import (
 	"regexp"

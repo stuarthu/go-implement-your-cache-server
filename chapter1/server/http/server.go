@@ -1,7 +1,8 @@
 package http
 
 import (
-	"../cache"
+	"github.com/stuarthu/go-implement-your-cache-server/chapter3/server/cache"
+
 	"net/http"
 )
 
