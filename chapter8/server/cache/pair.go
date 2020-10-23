@@ -1,1 +1,6 @@
-../../../chapter5/server/cache/pair.go
+package cache
+
+type pair struct {
+	k string
+	v []byte
+}

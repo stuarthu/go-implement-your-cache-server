@@ -1,10 +1,9 @@
-package http
+package tcp
 
 import (
-	"net/http"
-
 	"github.com/stuarthu/go-implement-your-cache-server/chapter8/server/cache"
 	"github.com/stuarthu/go-implement-your-cache-server/chapter8/server/cluster"
+	"net"
 )
 
 type Server struct {
@@ -13,11 +12,17 @@ type Server struct {
 }
 
 func (s *Server) Listen() {
-	http.Handle("/cache/", s.cacheHandler())
-	http.Handle("/status", s.statusHandler())
-	http.Handle("/cluster", s.clusterHandler())
-	http.Handle("/rebalance", s.rebalanceHandler())
-	http.ListenAndServe(s.Addr()+":12345", nil)
+	l, e := net.Listen("tcp", s.Addr()+":12346")
+	if e != nil {
+		panic(e)
+	}
+	for {
+		c, e := l.Accept()
+		if e != nil {
+			panic(e)
+		}
+		go s.process(c)
+	}
 }
 
 func New(c cache.Cache, n cluster.Node) *Server {

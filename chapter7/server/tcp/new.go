@@ -1,9 +1,10 @@
 package tcp
 
 import (
+	"net"
+
 	"github.com/stuarthu/go-implement-your-cache-server/chapter7/server/cache"
 	"github.com/stuarthu/go-implement-your-cache-server/chapter7/server/cluster"
-	"net"
 )
 
 type Server struct {
