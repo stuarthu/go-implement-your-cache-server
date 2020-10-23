@@ -1,1 +1,8 @@
-../../../chapter8/server/cache/scanner.go
+package cache
+
+type Scanner interface {
+	Scan() bool
+	Key() string
+	Value() []byte
+	Close()
+}

@@ -1,10 +1,10 @@
 package main
 
 import (
-	"./cache"
-	"./cluster"
-	"./http"
-	"./tcp"
+	"github.com/stuarthu/go-implement-your-cache-server/chapter9/server/cache"
+	"github.com/stuarthu/go-implement-your-cache-server/chapter9/server/cluster"
+	"github.com/stuarthu/go-implement-your-cache-server/chapter9/server/http"
+	"github.com/stuarthu/go-implement-your-cache-server/chapter9/server/tcp"
 	"flag"
 	"log"
 )
