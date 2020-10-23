@@ -1,9 +1,10 @@
 package http
 
 import (
-	"../cache"
-	"../cluster"
 	"net/http"
+
+	"github.com/stuarthu/go-implement-your-cache-server/chapter7/server/cache"
+	"github.com/stuarthu/go-implement-your-cache-server/chapter7/server/cluster"
 )
 
 type Server struct {
