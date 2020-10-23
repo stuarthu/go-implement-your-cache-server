@@ -1,12 +1,13 @@
 package main
 
 import (
-	"./cache"
-	"./cluster"
-	"./http"
-	"./tcp"
 	"flag"
 	"log"
+
+	"github.com/stuarthu/go-implement-your-cache-server/chapter7/server/cache"
+	"github.com/stuarthu/go-implement-your-cache-server/chapter7/server/cluster"
+	"github.com/stuarthu/go-implement-your-cache-server/chapter7/server/http"
+	"github.com/stuarthu/go-implement-your-cache-server/chapter7/server/tcp"
 )
 
 func main() {

@@ -1,9 +1,10 @@
 package main
 
 import (
-	"./cache"
-	"./http"
-	"./tcp"
+	"github.com/stuarthu/go-implement-your-cache-server/chapter3/server/cache"
+	"github.com/stuarthu/go-implement-your-cache-server/chapter3/server/http"
+	"github.com/stuarthu/go-implement-your-cache-server/chapter3/server/tcp"
+	
 	"flag"
 	"log"
 )
